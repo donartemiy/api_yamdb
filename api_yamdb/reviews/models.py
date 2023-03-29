@@ -58,57 +58,64 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 
-class Categories(models.Model):
+class Category(models.Model):
     name = models.CharField(max_length=256, verbose_name='Категория')
     slug = models.SlugField(unique=True, verbose_name='Ссылка_категории')
 
+    class Meta:
+        default_related_name = 'category'
+
     def __str__(self):
         return self.name
 
 
-class Genres(models.Model):
+class Genre(models.Model):
     name = models.CharField(max_length=256, verbose_name='Жанр')
     slug = models.SlugField(unique=True, verbose_name='Ссылка_жанра')
 
+    class Meta:
+        default_related_name = 'genre'
+
     def __str__(self):
         return self.name
 
 
-class Reviews(models.Model):
-    pass
+class Review(models.Model):
+    text = models.TextField(verbose_name='Stub')
 
 
-class Titles(models.Model):
-    name = models.CharField(max_length=256, verbose_name='Название')
+class Title(models.Model):
+    name = models.CharField(
+        max_length=256, unique=True, verbose_name='Название')
     description = models.TextField(verbose_name='Описание')
     # author = models.ForeignKey(
     #     User, on_delete=models.CASCADE, related_name='posts')
     category = models.ForeignKey(
-        Categories,
+        Category,
         blank=False,
         null=True,
         on_delete=models.SET_NULL,
         verbose_name='Slug категории',
         help_text='Категория, к которой относится произведение'
     )
-    genre = models.ForeignKey(      # Тут похоже нужно many to many делать?
-        # Если вручную создавать промежуточную таблицу, то нужно испольховать
-        # ManyToManyField.through
-        Genres,
-        blank=True,     # Возомжно это нужно убрать, т.к. жанр не обязателен вроде как ?
-        null=True,      # Это поле связано с БД, а blank только с проверкой
-        on_delete=models.SET_NULL,
+    genre = models.ManyToManyField(
+        Genre,
         verbose_name='Slug жанра',
         help_text='Жарн, к которому относится произведение'
     )
-    year = models.DateTimeField(verbose_name='Год выпуска')
-    reviews = models.ForeignKey(
-        Reviews,
+    year = models.DateField(verbose_name='Год выпуска')
+    review = models.ForeignKey(
+        Review,
         blank=True,
         on_delete=models.CASCADE
     )
 
+    class Meta:
+        default_related_name = 'title'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['name', 'category'], name='title_unique')
+        ]
+
     def __str__(self):
         return self.name
-
-    # related_name добавить ?
