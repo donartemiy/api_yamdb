@@ -2,14 +2,14 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 
-USER = 'user'
-MODERATOR = 'moderator'
-ADMIN = 'admin'
-ROLES = (
-    (USER, 'Пользователь'),
-    (MODERATOR, 'Модератор'),
-    (ADMIN, 'Администратор'),
-)
+# USER = 'user'
+# MODERATOR = 'moderator'
+# ADMIN = 'admin'
+# ROLES = (
+#     (USER, 'Пользователь'),
+#     (MODERATOR, 'Модератор'),
+#     (ADMIN, 'Администратор'),
+# )
 
 
 
@@ -80,16 +80,10 @@ class Genre(models.Model):
         return self.name
 
 
-class Review(models.Model):
-    text = models.TextField(verbose_name='Stub')
-
-
 class Title(models.Model):
     name = models.CharField(
-        max_length=256, unique=True, verbose_name='Название')
-    description = models.TextField(verbose_name='Описание')
-    # author = models.ForeignKey(
-    #     User, on_delete=models.CASCADE, related_name='posts')
+        max_length=256, verbose_name='Название')
+    description = models.TextField(blank=True, verbose_name='Описание')
     category = models.ForeignKey(
         Category,
         blank=False,
@@ -103,12 +97,8 @@ class Title(models.Model):
         verbose_name='Slug жанра',
         help_text='Жарн, к которому относится произведение'
     )
-    year = models.DateField(verbose_name='Год выпуска')
-    review = models.ForeignKey(
-        Review,
-        blank=True,
-        on_delete=models.CASCADE
-    )
+    # DateField ?
+    year = models.CharField(max_length=4)
 
     class Meta:
         default_related_name = 'title'
