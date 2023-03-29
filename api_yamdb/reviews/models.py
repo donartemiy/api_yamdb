@@ -57,6 +57,7 @@ ROLES = (
 from django.contrib.auth import get_user_model
 User = get_user_model()
 
+
 class Categories(models.Model):
     name = models.CharField(max_length=256, verbose_name='Категория')
     slug = models.SlugField(unique=True, verbose_name='Ссылка_категории')
@@ -73,27 +74,41 @@ class Genres(models.Model):
         return self.name
 
 
+class Reviews(models.Model):
+    pass
+
+
 class Titles(models.Model):
     name = models.CharField(max_length=256, verbose_name='Название')
     description = models.TextField(verbose_name='Описание')
     # author = models.ForeignKey(
-        # User, on_delete=models.CASCADE, related_name='posts')
+    #     User, on_delete=models.CASCADE, related_name='posts')
     category = models.ForeignKey(
         Categories,
         blank=False,
+        null=True,
         on_delete=models.SET_NULL,
         verbose_name='Slug категории',
         help_text='Категория, к которой относится произведение'
     )
-    genre = models.ForeignKey(
+    genre = models.ForeignKey(      # Тут похоже нужно many to many делать?
+        # Если вручную создавать промежуточную таблицу, то нужно испольховать
+        # ManyToManyField.through
         Genres,
-        blank=True,
-        # null=True,
+        blank=True,     # Возомжно это нужно убрать, т.к. жанр не обязателен вроде как ?
+        null=True,      # Это поле связано с БД, а blank только с проверкой
         on_delete=models.SET_NULL,
         verbose_name='Slug жанра',
         help_text='Жарн, к которому относится произведение'
     )
     year = models.DateTimeField(verbose_name='Год выпуска')
+    reviews = models.ForeignKey(
+        Reviews,
+        blank=True,
+        on_delete=models.CASCADE
+    )
 
     def __str__(self):
         return self.name
+
+    # related_name добавить ?
