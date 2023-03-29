@@ -1,8 +1,7 @@
-from django.shortcuts import get_object_or_404
 from rest_framework import filters, viewsets
 
-from reviews.models import Title, Genre, Category
-from api.serializers import TitleSerializer, GenreSerializer
+from api.serializers import GenreSerializer, TitleSerializer
+from reviews.models import Genre, Title
 
 
 class TitleViewSet(viewsets.ModelViewSet):
