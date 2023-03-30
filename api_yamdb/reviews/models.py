@@ -1,19 +1,24 @@
-from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.core.validators import MaxValueValidator, MinValueValidator
+from django.contrib.auth.models import AbstractUser
+from .validators import validate_username
+
 
 USER = 'user'
 MODERATOR = 'moderator'
 ADMIN = 'admin'
+USER_RU = 'юзер'
+MODERATOR_RU = 'модератор'
+ADMIN_RU = 'админ'
 ROLES = (
-    (USER, 'Пользователь'),
-    (MODERATOR, 'Модератор'),
-    (ADMIN, 'Администратор'),
+    (USER, USER_RU),
+    (MODERATOR, MODERATOR_RU),
+    (ADMIN, ADMIN_RU),
 )
 
 
 class User(AbstractUser):
     username = models.CharField(verbose_name='Пользователь',
+                                validators=(validate_username,),
                                 max_length=150,
                                 unique=True,
                                 blank=False,
@@ -52,6 +57,15 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.username
+
+    class Meta:
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
+
+    def __str__(self):
+        return self.username
+
+
 class Category(models.Model):
     name = models.CharField(max_length=256, verbose_name='Категория')
     slug = models.SlugField(unique=True, verbose_name='Ссылка_категории')
@@ -72,6 +86,10 @@ class Genre(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Review(models.Model):
+    text = models.TextField(verbose_name='Stub')
 
 
 class Title(models.Model):
