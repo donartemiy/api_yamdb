@@ -1,14 +1,18 @@
-from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.core.validators import MaxValueValidator, MinValueValidator
+from django.contrib.auth.models import AbstractUser
+from .validators import validate_username
+
 
 USER = 'user'
 MODERATOR = 'moderator'
 ADMIN = 'admin'
+USER_RU = 'юзер'
+MODERATOR_RU = 'модератор'
+ADMIN_RU = 'админ'
 ROLES = (
-    (USER, 'Пользователь'),
-    (MODERATOR, 'Модератор'),
-    (ADMIN, 'Администратор'),
+    (USER, USER_RU),
+    (MODERATOR, MODERATOR_RU),
+    (ADMIN, ADMIN_RU),
 )
 LIMIT_USERNAME = 150
 LIMIT_EMAIL = 254
@@ -19,6 +23,7 @@ LIMIT_NAME = 256
 
 class User(AbstractUser):
     username = models.CharField(verbose_name='Пользователь',
+                                validators=(validate_username,),
                                 max_length=LIMIT_USERNAME,
                                 unique=True,
                                 blank=False,
@@ -54,9 +59,15 @@ class User(AbstractUser):
     @property
     def is_moderator(self):
         return self.role == MODERATOR
+      
+    class Meta:
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
 
     def __str__(self):
         return self.username
+
+    
 
 
 class Category(models.Model):
@@ -79,6 +90,10 @@ class Genre(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Review(models.Model):
+    text = models.TextField(verbose_name='Stub')
 
 
 class Title(models.Model):
