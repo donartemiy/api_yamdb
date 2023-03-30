@@ -1,7 +1,8 @@
-from django.db import models
 from django.contrib.auth.models import AbstractUser
-from .validators import validate_username
+from django.core.validators import MaxValueValidator, MinValueValidator
+from django.db import models
 
+from .validators import validate_username
 
 USER = 'user'
 MODERATOR = 'moderator'
@@ -59,15 +60,13 @@ class User(AbstractUser):
     @property
     def is_moderator(self):
         return self.role == MODERATOR
-      
+
     class Meta:
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
 
     def __str__(self):
         return self.username
-
-    
 
 
 class Category(models.Model):
@@ -90,10 +89,6 @@ class Genre(models.Model):
 
     def __str__(self):
         return self.name
-
-
-class Review(models.Model):
-    text = models.TextField(verbose_name='Stub')
 
 
 class Title(models.Model):
