@@ -5,9 +5,9 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from api.serializers import GenreSerializer, TitleSerializer, GetTokenSerializer, NotAdminSerializer, SignUpSerializer, UsersSerializer
+from api.serializers import CategorySerializer, GenreSerializer, TitleSerializer, GetTokenSerializer, NotAdminSerializer, SignUpSerializer, UsersSerializer
 from api.permissions import IsAdminOnly
-from reviews.models import User, Genre, Title
+from reviews.models import Category, Genre, Title, User
 
 
 class UsersViewSet(viewsets.ModelViewSet):
@@ -114,3 +114,10 @@ class TitleViewSet(viewsets.ModelViewSet):
 class GenreViewSet(viewsets.ModelViewSet):
     serializer_class = GenreSerializer
     queryset = Genre.objects.all()
+
+
+class CategoryViewSet(viewsets.ModelViewSet):
+    serializer_class = CategorySerializer
+    queryset = Category.objects.all()
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('slug',)
