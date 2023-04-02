@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from reviews.models import Genre, Title, User
+from reviews.models import Genre, Title, User, LIMIT_USERNAME, LIMIT_EMAIL
 from reviews.validators import validate_username
 
 
@@ -26,11 +26,11 @@ class GetTokenSerializer(serializers.Serializer):
 class SignUpSerializer(serializers.Serializer):
     email = serializers.EmailField(
         required=True,
-        max_length=254,)
+        max_length=LIMIT_EMAIL,)
     username = serializers.CharField(
         required=True,
         validators=[validate_username],
-        max_length=150)
+        max_length=LIMIT_USERNAME)
 
 
 class GenreSerializer(serializers.ModelSerializer):
