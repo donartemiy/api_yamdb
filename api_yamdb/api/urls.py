@@ -8,7 +8,7 @@ app_name = 'api'
 router = DefaultRouter()
 router.register('titles', TitleViewSet, basename='titles')
 router.register('genres', GenreViewSet, basename='genres')
-router.register('categorys', CategoryViewSet, basename='categorys')
+router.register('categories', CategoryViewSet, basename='categories')
 router.register('users', UsersViewSet, basename='users')
 
 
