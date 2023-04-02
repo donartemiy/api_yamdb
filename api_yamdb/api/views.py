@@ -5,9 +5,9 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from api.serializers import GenreSerializer, TitleSerializer, GetTokenSerializer, NotAdminSerializer, SignUpSerializer, UsersSerializer
-from api.permissions import IsAdminOnly
-from reviews.models import User, Genre, Title
+from api.serializers import GenreSerializer, TitleSerializer, GetTokenSerializer, NotAdminSerializer, SignUpSerializer, UsersSerializer, CategorySerializer
+from api.permissions import IsAdminOnly, IsAdminRedOnly
+from reviews.models import User, Genre, Title, Category
 
 
 class UsersViewSet(viewsets.ModelViewSet):
@@ -105,6 +105,7 @@ class APISignup(views.APIView):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
+    permission_classes = (IsAdminRedOnly,)
     serializer_class = TitleSerializer
     queryset = Title.objects.all()
     filter_backends = (filters.SearchFilter,)
@@ -112,5 +113,14 @@ class TitleViewSet(viewsets.ModelViewSet):
 
 
 class GenreViewSet(viewsets.ModelViewSet):
+    permission_classes = (IsAdminRedOnly,)
     serializer_class = GenreSerializer
     queryset = Genre.objects.all()
+
+
+class CategoryViewSet(viewsets.ModelViewSet):
+    serializer_class = CategorySerializer
+    queryset = Category.objects.all()
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('slug',)
+    permission_classes = (IsAdminRedOnly,)

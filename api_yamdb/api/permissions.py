@@ -13,3 +13,9 @@ class IsAdminOnly(permissions.BasePermission):
             request.user.is_admin
             or request.user.is_staff
         )
+
+
+class IsAdminRedOnly(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return (request.method in permissions.SAFE_METHODS
+                or request.user.is_authenticated and request.user.is_admin)

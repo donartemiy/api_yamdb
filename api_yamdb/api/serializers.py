@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from reviews.models import Genre, Title, User, LIMIT_USERNAME, LIMIT_EMAIL
+from reviews.models import Genre, Title, User, Category, LIMIT_USERNAME, LIMIT_EMAIL
 from reviews.validators import validate_username
 
 
@@ -45,4 +45,10 @@ class TitleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Title
+        fields = '__all__'
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
         fields = '__all__'
