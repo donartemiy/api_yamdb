@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from reviews.models import Genre, Title, User
+from reviews.models import Category, Genre, Title, User
 from reviews.validators import validate_username
 
 
@@ -33,6 +33,12 @@ class SignUpSerializer(serializers.Serializer):
         max_length=150)
 
 
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = '__all__'
+
+
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Genre
@@ -42,6 +48,10 @@ class GenreSerializer(serializers.ModelSerializer):
 class TitleSerializer(serializers.ModelSerializer):
     genre = serializers.SlugRelatedField(
         many=True, read_only=True, slug_field='slug')
+    category = serializers.SlugRelatedField(
+        many=False,
+        queryset=Category.objects.all(),
+        slug_field='slug')
 
     class Meta:
         model = Title

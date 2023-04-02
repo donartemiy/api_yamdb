@@ -20,6 +20,7 @@ LIMIT_EMAIL = 254
 LIMIT_BIO = 300
 LIMIT_ROLE = 50
 LIMIT_NAME = 256
+LIMIT_SLUG = 50
 
 
 class User(AbstractUser):
@@ -71,7 +72,10 @@ class User(AbstractUser):
 
 class Category(models.Model):
     name = models.CharField(max_length=LIMIT_NAME, verbose_name='Категория')
-    slug = models.SlugField(unique=True, verbose_name='Ссылка_категории')
+    slug = models.SlugField(
+        max_length=LIMIT_SLUG,
+        unique=True,
+        verbose_name='Ссылка категории')
 
     class Meta:
         default_related_name = 'category'
@@ -82,7 +86,10 @@ class Category(models.Model):
 
 class Genre(models.Model):
     name = models.CharField(max_length=LIMIT_NAME, verbose_name='Жанр')
-    slug = models.SlugField(unique=True, verbose_name='Ссылка_жанра')
+    slug = models.SlugField(
+        max_length=LIMIT_SLUG,
+        unique=True,
+        verbose_name='Ссылка жанра')
 
     class Meta:
         default_related_name = 'genre'
