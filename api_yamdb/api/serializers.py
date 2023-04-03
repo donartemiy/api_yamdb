@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404
+from rest_framework.validators import UniqueValidator
 
 from reviews.models import (LIMIT_EMAIL, LIMIT_USERNAME, Category, Comment,
                             Genre, Review, Title, User)
@@ -8,9 +9,22 @@ from reviews.validators import validate_username
 
 
 class UsersSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(
+        validators=[
+            UniqueValidator(queryset=User.objects.all())
+        ],
+        required=True,
+    )
+    email = serializers.EmailField(
+        validators=[
+            UniqueValidator(queryset=User.objects.all())
+        ]
+    )
+
     class Meta:
+        fields = ("username", "email", "first_name",
+                  "last_name", "bio", "role")
         model = User
-        fields = '__all__'
 
 
 class NotAdminSerializer(serializers.ModelSerializer):
