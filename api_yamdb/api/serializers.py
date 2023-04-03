@@ -10,13 +10,13 @@ from reviews.validators import validate_username
 class UsersSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('all')
+        fields = '__all__'
 
 
 class NotAdminSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('all')
+        fields = '__all__'
 
 
 class GetTokenSerializer(serializers.Serializer):
