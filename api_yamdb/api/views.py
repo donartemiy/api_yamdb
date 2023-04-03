@@ -11,8 +11,9 @@ from api.serializers import (CategorySerializer, GenreSerializer,
                              NotAdminSerializer, SignUpSerializer,
                              UsersSerializer, ReviewSerializer,
                              CommentSerializer)
-from api.permissions import IsAdminOnly, IsAdminModeratorOwnerOrReadOnly
+from api.permissions import IsAdminOnly, IsAdminRedOnly, IsAdminModeratorOwnerOrReadOnly
 from reviews.models import Category, Genre, Title, User, Review
+
 
 
 class UsersViewSet(viewsets.ModelViewSet):
@@ -110,6 +111,7 @@ class APISignup(views.APIView):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
+    permission_classes = (IsAdminRedOnly,)
     serializer_class = TitleSerializer
     queryset = Title.objects.all()
     filter_backends = (filters.SearchFilter,)
@@ -117,6 +119,7 @@ class TitleViewSet(viewsets.ModelViewSet):
 
 
 class GenreViewSet(viewsets.ModelViewSet):
+    permission_classes = (IsAdminRedOnly,)
     serializer_class = GenreSerializer
     queryset = Genre.objects.all()
 
@@ -126,6 +129,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     filter_backends = (filters.SearchFilter,)
     search_fields = ('slug',)
+    permission_classes = (IsAdminRedOnly,)
 
 
 class ReviewViewSet(viewsets.ModelViewSet):

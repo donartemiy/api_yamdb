@@ -13,10 +13,3 @@ def validate_username(value):
     if re.search(r'^[-a-zA-Z0-9_]+$', value) is None:
         raise ValidationError(
             ('Не допустимые символы '), params={'value': value},)
-
-
-def validate_year(value):
-    year = dt.date.today().year
-    if not (value <= year):
-        raise ValidationError('Год произведения указан некорректно!')
-    return value
