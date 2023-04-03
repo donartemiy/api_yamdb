@@ -5,7 +5,7 @@ from rest_framework import filters, permissions, status, views, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-
+from django.db.models import Avg
 
 from api.permissions import (IsAdminModeratorOwnerOrReadOnly, IsAdminOnly,
                              IsAdminReadOnly)
@@ -13,7 +13,7 @@ from api.serializers import (CategorySerializer, CommentSerializer,
                              GenreSerializer, GetTokenSerializer,
                              NotAdminSerializer, ReviewSerializer,
                              SignUpSerializer, TitleSerializer,
-                             UsersSerializer)
+                             UsersSerializer, ReadOnlyTitleSerializer)
 from reviews.models import Category, Genre, Review, Title, User
 
 
@@ -113,10 +113,17 @@ class APISignup(views.APIView):
 
 class TitleViewSet(viewsets.ModelViewSet):
     serializer_class = TitleSerializer
-    queryset = Title.objects.all()
+    queryset = Title.objects.all().annotate(
+        Avg("reviews__score")
+    ).order_by("name")
     filter_backends = (filters.SearchFilter,)
     search_fields = ('category__slug', 'genre__slug', 'name', 'year')
     permission_classes = (IsAdminReadOnly,)
+
+    def get_serializer_class(self):
+        if self.action in ("retrieve", "list"):
+            return ReadOnlyTitleSerializer
+        return TitleSerializer
 
 
 class GenreViewSet(viewsets.ModelViewSet):

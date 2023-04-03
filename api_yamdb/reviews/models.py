@@ -116,6 +116,11 @@ class Title(models.Model):
         help_text='Жарн, к которому относится произведение'
     )
     year = models.CharField(max_length=4)
+    rating = models.IntegerField(
+        verbose_name='Рейтинг',
+        null=True,
+        default=None
+    )
 
     class Meta:
         default_related_name = 'title'
