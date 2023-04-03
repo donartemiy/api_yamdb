@@ -1,8 +1,9 @@
 from rest_framework import serializers
-from rest_framework.generics import get_object_or_404
 from rest_framework.exceptions import ValidationError
+from rest_framework.generics import get_object_or_404
 
-from reviews.models import Category, Comment, Genre, Title, Review, User, LIMIT_USERNAME, LIMIT_EMAIL
+from reviews.models import (LIMIT_EMAIL, LIMIT_USERNAME, Category, Comment,
+                            Genre, Review, Title, User)
 from reviews.validators import validate_username
 
 
@@ -49,7 +50,10 @@ class GenreSerializer(serializers.ModelSerializer):
 
 class TitleSerializer(serializers.ModelSerializer):
     genre = serializers.SlugRelatedField(
-        many=True, read_only=True, slug_field='slug')
+        many=True,
+        read_only=False,
+        queryset=Genre.objects.all(),
+        slug_field='slug')
     category = serializers.SlugRelatedField(
         many=False,
         queryset=Category.objects.all(),

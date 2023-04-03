@@ -1,19 +1,20 @@
-from rest_framework import filters, viewsets, views, permissions, status
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import EmailMessage
+from django.shortcuts import get_object_or_404
+from rest_framework import filters, permissions, status, views, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.shortcuts import get_object_or_404
 
-from api.serializers import (CategorySerializer, GenreSerializer,
-                             TitleSerializer, GetTokenSerializer,
-                             NotAdminSerializer, SignUpSerializer,
-                             UsersSerializer, ReviewSerializer,
-                             CommentSerializer)
-from api.permissions import IsAdminOnly, IsAdminRedOnly, IsAdminModeratorOwnerOrReadOnly
-from reviews.models import Category, Genre, Title, User, Review
 
+from api.permissions import (IsAdminModeratorOwnerOrReadOnly, IsAdminOnly,
+                             IsAdminReadOnly)
+from api.serializers import (CategorySerializer, CommentSerializer,
+                             GenreSerializer, GetTokenSerializer,
+                             NotAdminSerializer, ReviewSerializer,
+                             SignUpSerializer, TitleSerializer,
+                             UsersSerializer)
+from reviews.models import Category, Genre, Review, Title, User
 
 
 class UsersViewSet(viewsets.ModelViewSet):
@@ -111,17 +112,17 @@ class APISignup(views.APIView):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    permission_classes = (IsAdminRedOnly,)
     serializer_class = TitleSerializer
     queryset = Title.objects.all()
     filter_backends = (filters.SearchFilter,)
     search_fields = ('category__slug', 'genre__slug', 'name', 'year')
+    permission_classes = (IsAdminReadOnly,)
 
 
 class GenreViewSet(viewsets.ModelViewSet):
-    permission_classes = (IsAdminRedOnly,)
     serializer_class = GenreSerializer
     queryset = Genre.objects.all()
+    permission_classes = (IsAdminReadOnly,)
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
@@ -129,7 +130,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     filter_backends = (filters.SearchFilter,)
     search_fields = ('slug',)
-    permission_classes = (IsAdminRedOnly,)
+    permission_classes = (IsAdminReadOnly,)
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
