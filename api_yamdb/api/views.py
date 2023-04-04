@@ -1,13 +1,13 @@
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import EmailMessage
 from django.shortcuts import get_object_or_404
-from rest_framework import filters, permissions, status, views, viewsets
+from rest_framework import (filters, permissions,
+                            status, views, viewsets, mixins)
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.db.models import Avg
 
-from api.mixins import WithoutPatсhPutViewSet
 from api.permissions import (IsAdminModeratorOwnerOrReadOnly, IsAdminOnly,
                              IsAdminReadOnly)
 from api.serializers import (CategorySerializer, CommentSerializer,
@@ -127,7 +127,8 @@ class TitleViewSet(viewsets.ModelViewSet):
         return TitleSerializer
 
 
-class GenreViewSet(WithoutPatсhPutViewSet):
+class GenreViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
+                   mixins.DestroyModelMixin, viewsets.GenericViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     search_fields = ('^name',)
