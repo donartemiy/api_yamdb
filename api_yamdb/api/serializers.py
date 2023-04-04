@@ -10,12 +10,14 @@ from reviews.validators import validate_username
 
 class UsersSerializer(serializers.ModelSerializer):
     username = serializers.CharField(
+        max_length=LIMIT_USERNAME,
         validators=[
             UniqueValidator(queryset=User.objects.all())
         ],
         required=True,
     )
     email = serializers.EmailField(
+        max_length=LIMIT_EMAIL,
         validators=[
             UniqueValidator(queryset=User.objects.all())
         ]
