@@ -137,7 +137,8 @@ class GenreViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
     permission_classes = (IsAdminReadOnly,)
 
 
-class CategoryViewSet(viewsets.ModelViewSet):
+class CategoryViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
+                   mixins.DestroyModelMixin, viewsets.GenericViewSet):
     serializer_class = CategorySerializer
     queryset = Category.objects.all()
     filter_backends = (filters.SearchFilter,)
