@@ -32,7 +32,8 @@ class UsersSerializer(serializers.ModelSerializer):
 class NotAdminSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = '__all__'
+        fields = ("username", "email", "first_name",
+                  "last_name", "bio")
 
 
 class GetTokenSerializer(serializers.Serializer):
