@@ -7,6 +7,8 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.db.models import Avg
+from django_filters.rest_framework import FilterSet, CharFilter
+from django_filters.rest_framework import DjangoFilterBackend
 
 from api.permissions import (IsAdminModeratorOwnerOrReadOnly, IsAdminOnly,
                              IsAdminReadOnly)
@@ -112,13 +114,22 @@ class APISignup(views.APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+class TitleFilter(FilterSet):
+    category = CharFilter(field_name='category__slug')
+    genre = CharFilter(field_name='genre__slug')
+
+    class Meta:
+        model = Title
+        fields = ['name', 'year', 'category', 'genre']
+
+
 class TitleViewSet(viewsets.ModelViewSet):
     serializer_class = TitleSerializer
     queryset = Title.objects.all().annotate(
         Avg("reviews__score")
     ).order_by("name")
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ('category__slug', 'genre__slug', 'name', 'year')
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = TitleFilter
     permission_classes = (IsAdminReadOnly,)
 
     def get_serializer_class(self):
@@ -138,7 +149,7 @@ class GenreViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
 
 
 class CategoryViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
-                   mixins.DestroyModelMixin, viewsets.GenericViewSet):
+                      mixins.DestroyModelMixin, viewsets.GenericViewSet):
     serializer_class = CategorySerializer
     queryset = Category.objects.all()
     filter_backends = (filters.SearchFilter,)
