@@ -1,25 +1,29 @@
-from rest_framework import filters, viewsets, views, permissions, status
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import EmailMessage
+from django.shortcuts import get_object_or_404
+from rest_framework import (filters, permissions,
+                            status, views, viewsets, mixins)
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.shortcuts import get_object_or_404
+from django.db.models import Avg
+from django_filters.rest_framework import FilterSet, CharFilter
+from django_filters.rest_framework import DjangoFilterBackend
 
-from api.serializers import (CategorySerializer, GenreSerializer,
-                             TitleSerializer, GetTokenSerializer,
-                             NotAdminSerializer, SignUpSerializer,
-                             UsersSerializer, ReviewSerializer,
-                             CommentSerializer)
-from api.permissions import IsAdminOnly, IsAdminRedOnly, IsAdminModeratorOwnerOrReadOnly
-from reviews.models import Category, Genre, Title, User, Review
-
+from api.permissions import (IsAdminModeratorOwnerOrReadOnly, IsAdminOnly,
+                             IsAdminReadOnly)
+from api.serializers import (CategorySerializer, CommentSerializer,
+                             GenreSerializer, GetTokenSerializer,
+                             NotAdminSerializer, ReviewSerializer,
+                             SignUpSerializer, TitleSerializer,
+                             UsersSerializer, ReadOnlyTitleSerializer)
+from reviews.models import Category, Genre, Review, Title, User
 
 
 class UsersViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UsersSerializer
-    permission_classes = (permissions.IsAuthenticated, IsAdminOnly,)
+    permission_classes = (IsAdminOnly,)
     lookup_field = 'username'
     filter_backends = (filters.SearchFilter, )
     search_fields = ('username', )
@@ -110,26 +114,48 @@ class APISignup(views.APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+class TitleFilter(FilterSet):
+    category = CharFilter(field_name='category__slug')
+    genre = CharFilter(field_name='genre__slug')
+
+    class Meta:
+        model = Title
+        fields = ['name', 'year', 'category', 'genre']
+
+
 class TitleViewSet(viewsets.ModelViewSet):
-    permission_classes = (IsAdminRedOnly,)
     serializer_class = TitleSerializer
-    queryset = Title.objects.all()
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ('category__slug', 'genre__slug', 'name', 'year')
+    queryset = Title.objects.all().annotate(
+        Avg("reviews__score")
+    ).order_by("name")
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = TitleFilter
+    permission_classes = (IsAdminReadOnly,)
+
+    def get_serializer_class(self):
+        if self.action in ("retrieve", "list"):
+            return ReadOnlyTitleSerializer
+        return TitleSerializer
 
 
-class GenreViewSet(viewsets.ModelViewSet):
-    permission_classes = (IsAdminRedOnly,)
-    serializer_class = GenreSerializer
+class GenreViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
+                   mixins.DestroyModelMixin, viewsets.GenericViewSet):
     queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
+    search_fields = ('^name',)
+    lookup_field = 'slug'
+    filter_backends = (filters.SearchFilter,)
+    permission_classes = (IsAdminReadOnly,)
 
 
-class CategoryViewSet(viewsets.ModelViewSet):
+class CategoryViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
+                      mixins.DestroyModelMixin, viewsets.GenericViewSet):
     serializer_class = CategorySerializer
     queryset = Category.objects.all()
     filter_backends = (filters.SearchFilter,)
-    search_fields = ('slug',)
-    permission_classes = (IsAdminRedOnly,)
+    search_fields = ('^name',)
+    lookup_field = 'slug'
+    permission_classes = (IsAdminReadOnly,)
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
