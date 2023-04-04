@@ -2,7 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
-from .validators import validate_username
+from .validators import validate_username, validate_year
 
 USER = 'user'
 MODERATOR = 'moderator'
@@ -115,7 +115,10 @@ class Title(models.Model):
         verbose_name='Slug жанра',
         help_text='Жарн, к которому относится произведение'
     )
-    year = models.CharField(max_length=4)
+    year = models.IntegerField(
+        verbose_name='Дата выхода',
+        validators=[validate_year]
+    )
     rating = models.IntegerField(
         verbose_name='Рейтинг',
         null=True,
