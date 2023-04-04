@@ -1,2 +1,6 @@
-# api_yamdb
-api_yamdb
+* python -m venv venv (Устанавливаем виртуальное окружение)
+* source venv/Scripts/activate (Активируем виртуальное окружение)
+* python -m pip install --upgrade pip (Обновляем pip)
+* pip install -r requirements.txt (Устанавливаем зависимости)
+* python manage.py migrate (Делаем миграции)
+* python manage.py runserver (Запускаем проект)
