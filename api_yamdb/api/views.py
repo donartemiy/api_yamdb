@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.db.models import Avg
 
+from api.mixins import WithoutPatсhPutViewSet
 from api.permissions import (IsAdminModeratorOwnerOrReadOnly, IsAdminOnly,
                              IsAdminReadOnly)
 from api.serializers import (CategorySerializer, CommentSerializer,
@@ -126,9 +127,12 @@ class TitleViewSet(viewsets.ModelViewSet):
         return TitleSerializer
 
 
-class GenreViewSet(viewsets.ModelViewSet):
-    serializer_class = GenreSerializer
+class GenreViewSet(WithoutPatсhPutViewSet):
     queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
+    search_fields = ('^name',)
+    lookup_field = 'slug'
+    filter_backends = (filters.SearchFilter,)
     permission_classes = (IsAdminReadOnly,)
 
 
@@ -136,7 +140,8 @@ class CategoryViewSet(viewsets.ModelViewSet):
     serializer_class = CategorySerializer
     queryset = Category.objects.all()
     filter_backends = (filters.SearchFilter,)
-    search_fields = ('slug',)
+    search_fields = ('^name',)
+    lookup_field = 'slug'
     permission_classes = (IsAdminReadOnly,)
 
 
