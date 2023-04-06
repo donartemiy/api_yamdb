@@ -21,6 +21,7 @@ LIMIT_BIO = 300
 LIMIT_ROLE = 50
 LIMIT_NAME = 256
 LIMIT_SLUG = 50
+LEN_STR = 10
 
 
 class User(AbstractUser):
@@ -70,32 +71,31 @@ class User(AbstractUser):
         return self.username
 
 
-class Category(models.Model):
-    name = models.CharField(max_length=LIMIT_NAME, verbose_name='Категория')
+class AbstractBaseClassCategoryGenre(models.Model):
+    """ Abstract model for storing common data. """
+    name = models.CharField(max_length=LIMIT_NAME)
     slug = models.SlugField(
         max_length=LIMIT_SLUG,
-        unique=True,
-        verbose_name='Ссылка категории')
+        unique=True)
 
     class Meta:
-        default_related_name = 'category'
+        abstract = True
+        ordering = ["name"]
 
     def __str__(self):
-        return self.name
+        return self.name[:LEN_STR]
 
 
-class Genre(models.Model):
-    name = models.CharField(max_length=LIMIT_NAME, verbose_name='Жанр')
-    slug = models.SlugField(
-        max_length=LIMIT_SLUG,
-        unique=True,
-        verbose_name='Ссылка жанра')
+class Category(AbstractBaseClassCategoryGenre):
+    class Meta(AbstractBaseClassCategoryGenre.Meta):
+        verbose_name = 'Категория'
+        verbose_name_plural = "Категории"
 
-    class Meta:
-        default_related_name = 'genre'
 
-    def __str__(self):
-        return self.name
+class Genre(AbstractBaseClassCategoryGenre):
+    class Meta(AbstractBaseClassCategoryGenre.Meta):
+        verbose_name = 'Жанр'
+        verbose_name_plural = "Жанры"
 
 
 class Title(models.Model):
@@ -104,20 +104,21 @@ class Title(models.Model):
     description = models.TextField(blank=True, verbose_name='Описание')
     category = models.ForeignKey(
         Category,
-        blank=False,
+        blank=True,
         null=True,
         on_delete=models.SET_NULL,
-        verbose_name='Slug категории',
+        verbose_name='Категория',
         help_text='Категория, к которой относится произведение'
     )
     genre = models.ManyToManyField(
         Genre,
-        verbose_name='Slug жанра',
+        verbose_name='Жанр',
         help_text='Жарн, к которому относится произведение'
     )
     year = models.IntegerField(
         verbose_name='Дата выхода',
-        validators=[validate_year]
+        validators=[validate_year],
+        db_index=True
     )
     rating = models.IntegerField(
         verbose_name='Рейтинг',
