@@ -25,16 +25,16 @@ class UsersSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        fields = ("username", "email", "first_name",
-                  "last_name", "bio", "role")
+        fields = ('username', 'email', 'first_name',
+                  'last_name', 'bio', 'role')
         model = User
 
 
 class NotAdminSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ("username", "email", "first_name",
-                  "last_name", "bio")
+        fields = ('username', 'email', 'first_name',
+                  'last_name', 'bio')
 
 
 class GetTokenSerializer(serializers.Serializer):
@@ -78,7 +78,9 @@ class TitleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Title
-        fields = '__all__'
+        fields = (
+            'id', 'name', 'description', 'category', 'genre', 'year'
+        )
 
 
 class ReadOnlyTitleSerializer(serializers.ModelSerializer):
@@ -91,8 +93,10 @@ class ReadOnlyTitleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Title
         fields = (
-            'id', 'name', 'year', 'rating', 'description', 'genre', 'category'
+            'id', 'name', 'description', 'category', 'genre', 'year', 'rating'
         )
+        read_only_fields = [
+            'id', 'name', 'description', 'category', 'genre', 'year', 'rating']
 
 
 class ReviewSerializer(serializers.ModelSerializer):

@@ -71,7 +71,7 @@ class User(AbstractUser):
         return self.username
 
 
-class AbstractBaseClassCategoryGenre(models.Model):
+class CommonCategoryGenre(models.Model):
     """ Abstract model for storing common data. """
     name = models.CharField(max_length=LIMIT_NAME)
     slug = models.SlugField(
@@ -80,22 +80,22 @@ class AbstractBaseClassCategoryGenre(models.Model):
 
     class Meta:
         abstract = True
-        ordering = ["name"]
+        ordering = ['name']
 
     def __str__(self):
         return self.name[:LEN_STR]
 
 
-class Category(AbstractBaseClassCategoryGenre):
-    class Meta(AbstractBaseClassCategoryGenre.Meta):
+class Category(CommonCategoryGenre):
+    class Meta(CommonCategoryGenre.Meta):
         verbose_name = 'Категория'
-        verbose_name_plural = "Категории"
+        verbose_name_plural = 'Категории'
 
 
-class Genre(AbstractBaseClassCategoryGenre):
-    class Meta(AbstractBaseClassCategoryGenre.Meta):
+class Genre(CommonCategoryGenre):
+    class Meta(CommonCategoryGenre.Meta):
         verbose_name = 'Жанр'
-        verbose_name_plural = "Жанры"
+        verbose_name_plural = 'Жанры'
 
 
 class Title(models.Model):
