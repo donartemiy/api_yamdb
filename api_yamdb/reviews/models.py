@@ -14,6 +14,8 @@ ADMIN = 'admin'
 USER_RU = 'юзер'
 MODERATOR_RU = 'модератор'
 ADMIN_RU = 'админ'
+#SUPERUSER = 'superuser'
+#STAFF = 'staff'
 ROLES = (
     (USER, USER_RU),
     (MODERATOR, MODERATOR_RU),
@@ -25,36 +27,26 @@ class User(AbstractUser):
     username = models.CharField(verbose_name='Пользователь',
                                 validators=(validate_username,),
                                 max_length=LIMIT_USERNAME,
-                                unique=True,
-                                blank=False,
-                                null=False)
+                                unique=True)
     email = models.EmailField(verbose_name='E-Mail',
                               unique=True,
-                              max_length=LIMIT_EMAIL,
-                              blank=False,
-                              null=False)
+                              max_length=LIMIT_EMAIL)
     bio = models.TextField(verbose_name='О себе',
                            blank=True,
                            max_length=LIMIT_BIO)
-    first_name = models.CharField(verbose_name='имя',
-                                  max_length=LIMIT_USERNAME,
+    first_name = models.CharField(max_length=LIMIT_USERNAME,
                                   blank=True)
-    last_name = models.CharField(verbose_name='фамилия',
-                                 max_length=LIMIT_USERNAME,
+    last_name = models.CharField(max_length=LIMIT_USERNAME,
                                  blank=True)
     role = models.CharField(verbose_name='Уровень доступа',
                             choices=ROLES,
                             default=USER,
-                            blank=True,
                             max_length=LIMIT_ROLE)
 
-    @property
-    def is_user(self):
-        return self.role == USER
 
     @property
     def is_admin(self):
-        return self.role == ADMIN
+        return self.role == ADMIN #or SUPERUSER or STAFF
 
     @property
     def is_moderator(self):
