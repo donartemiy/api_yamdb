@@ -157,6 +157,7 @@ class ReviewCommentModel(models.Model):
     def __str__(self):
         return self.text[: LIMIT_SELFTEXT]
 
+
 class Review(ReviewCommentModel):
     title = models.ForeignKey(
         Title,

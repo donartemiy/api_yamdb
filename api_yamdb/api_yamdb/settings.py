@@ -140,3 +140,4 @@ LEN_STR = 10
 MIN_VALUE = 1
 MAX_VALUE = 10
 LIMIT_SELFTEXT = 30
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
