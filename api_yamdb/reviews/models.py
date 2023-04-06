@@ -2,6 +2,9 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
+from api_yamdb.settings import (LEN_STR, LIMIT_BIO,
+                                LIMIT_EMAIL, LIMIT_NAME, LIMIT_ROLE,
+                                LIMIT_SLUG, LIMIT_USERNAME)
 from .validators import validate_username, validate_year
 
 USER = 'user'
@@ -15,13 +18,6 @@ ROLES = (
     (MODERATOR, MODERATOR_RU),
     (ADMIN, ADMIN_RU),
 )
-LIMIT_USERNAME = 150
-LIMIT_EMAIL = 254
-LIMIT_BIO = 300
-LIMIT_ROLE = 50
-LIMIT_NAME = 256
-LIMIT_SLUG = 50
-LEN_STR = 10
 
 
 class User(AbstractUser):
