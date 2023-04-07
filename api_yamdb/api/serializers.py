@@ -92,12 +92,9 @@ class TitleSerializer(serializers.ModelSerializer):
 
 
 class ReadOnlyTitleSerializer(serializers.ModelSerializer):
-    # FIXME неверная конструкция. не выводится rating
-    rating = serializers.IntegerField(
-        source='reviews__score__avg', read_only=True
-    )
     genre = GenreSerializer(many=True)
     category = CategorySerializer()
+    rating = serializers.SerializerMethodField()
 
     class Meta:
         model = Title
@@ -106,6 +103,17 @@ class ReadOnlyTitleSerializer(serializers.ModelSerializer):
         )
         read_only_fields = [
             'id', 'name', 'description', 'category', 'genre', 'year', 'rating']
+
+    def get_rating(self, obj):
+        """ Считаем средний rating из review. """
+        titles = Review.objects.filter(title=obj.id)
+        rating = 0
+        for title in titles:
+            rating += title.score
+        if len(titles):
+            return rating / len(titles)
+        else:
+            return None
 
 
 class ReviewSerializer(serializers.ModelSerializer):
