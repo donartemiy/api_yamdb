@@ -109,8 +109,6 @@ class ReadOnlyTitleSerializer(serializers.ModelSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
-    # FIXME По ТЗ нет необходимости выводить slug,
-    # а read_only можно прописать в мете
     author = serializers.SlugRelatedField(
         slug_field='username',
         read_only=True
@@ -137,8 +135,6 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    # FIXME По ТЗ нет необходимости выводить slug
-    # а read_only можно прописать в мете
     author = serializers.SlugRelatedField(
         slug_field='username',
         read_only=True
