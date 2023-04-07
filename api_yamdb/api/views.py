@@ -28,6 +28,7 @@ class UsersViewSet(viewsets.ModelViewSet):
     filter_backends = (filters.SearchFilter, )
     search_fields = ('username', )
     http_method_names = [
+        # FIXME однобуквенные переменные, нужно перечислить переменные
         m for m in viewsets.ModelViewSet.http_method_names if m not in ['put']]
 
     @action(methods=['get', 'patch'], detail=False,
@@ -35,11 +36,14 @@ class UsersViewSet(viewsets.ModelViewSet):
     def get_current_user_info(self, request):
         serializer = UsersSerializer(request.user)
         if request.method == 'PATCH':
+            # FIXME Зачем нам тут проверка на админа?  Юзер может изменять себя
+            # Один блок вложенности уйдет)
             if request.user.is_admin:
                 serializer = UsersSerializer(
                     request.user,
                     data=request.data,
                     partial=True)
+            # FIXME else не если не админ, а если метод GET (не патч)
             else:
                 serializer = NotAdminSerializer(
                     request.user,
@@ -51,12 +55,14 @@ class UsersViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
+# FIXME Класс здесь избыточен
 class APIGetToken(views.APIView):
 
     def post(self, request):
         serializer = GetTokenSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
+        # FIXME Переделать на get_or_404. Безопасность из коробки
         try:
             user = User.objects.get(username=data['username'])
         except User.DoesNotExist:
@@ -65,14 +71,20 @@ class APIGetToken(views.APIView):
                 status=status.HTTP_404_NOT_FOUND)
         if default_token_generator.check_token(user,
                                                data['confirmation_code']):
+            # FIXME не совсем правильно здесь использовать RefreshToken, поскольку у нас здесь немного другой алгоритм и настоящие refresh токены не используются
+            # лучше сделать from rest_framework_simplejwt.tokens import AccessToken 
+            # и им воспользоваться
             token = RefreshToken.for_user(user).access_token
             return Response({'token': str(token)},
                             status=status.HTTP_201_CREATED)
+        # FIXME правильнее сделать raise ValidationError, который сам конвертируется в 400 код ответа
+        # Это нужно для лучше понимания кодом программистом, что тут у нас ошибочная ситуация
         return Response(
             {'confirmation_code': 'Неверный код подтверждения!'},
             status=status.HTTP_400_BAD_REQUEST)
 
 
+# FIXME Класс здесь избыточен
 class APISignup(views.APIView):
     permission_classes = (permissions.AllowAny,)
 
@@ -90,6 +102,9 @@ class APISignup(views.APIView):
         serializer.is_valid(raise_exception=True)
         username = serializer.validated_data['username']
         email = serializer.validated_data['email']
+        # FIXME строчки XX-XX не нужны
+        # get_or_create на строчке 100 вызовет ошибку, если почта и логин занят
+        # достаточно лишь её перехватить и обработать
         username_taken = User.objects.filter(username=username).exists()
         email_taken = User.objects.filter(email=email).exists()
         if email_taken and not username_taken:
@@ -97,6 +112,8 @@ class APISignup(views.APIView):
         if username_taken and not email_taken:
             return Response('username занят',
                             status=status.HTTP_400_BAD_REQUEST)
+        # FIXME flag - неиспользуемая переменная
+        # их принято именовать как _
         user, flag = User.objects.get_or_create(
             username=username,
             email=email)
@@ -110,6 +127,8 @@ class APISignup(views.APIView):
             'to_email': user.email,
             'email_subject': 'Код подтверждения '
         }
+        # FIXME Можно упросить, не делать эту функцию, а воспользоваться встроенной 
+        # from django.core.mail import send_mail
         self.send_email(data)
         return Response(serializer.data, status=status.HTTP_200_OK)
 

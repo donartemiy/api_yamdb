@@ -21,6 +21,8 @@ router.register(r'titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)'
 
 urlpatterns = [
     path('v1/', include(router.urls)),
+    # TODO Урлы с одинаковым префиксом auth (строчки 24-25) выносим в
+    # отдельный список и подключаем одним инклудом
     path('v1/auth/signup/', APISignup.as_view(), name='signup'),
     path('v1/auth/token/', APIGetToken.as_view(), name='get_token'),
 ]

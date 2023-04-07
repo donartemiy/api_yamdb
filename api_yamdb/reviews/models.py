@@ -5,7 +5,7 @@ from django.db import models
 from api_yamdb.settings import (LEN_STR, LIMIT_BIO,
                                 LIMIT_EMAIL, LIMIT_NAME, LIMIT_ROLE,
                                 LIMIT_SLUG, LIMIT_USERNAME,
-                                MAX_VALUE, MIN_VALUE, LIMIT_SELFTEXT)
+                                MAX_VALUE, MIN_VALUE)
 from .validators import validate_username, validate_year
 
 USER = 'user'
@@ -14,8 +14,8 @@ ADMIN = 'admin'
 USER_RU = 'юзер'
 MODERATOR_RU = 'модератор'
 ADMIN_RU = 'админ'
-#SUPERUSER = 'superuser'
-#STAFF = 'staff'
+# SUPERUSER = 'superuser' TODO
+# STAFF = 'staff' TODO
 ROLES = (
     (USER, USER_RU),
     (MODERATOR, MODERATOR_RU),
@@ -34,6 +34,8 @@ class User(AbstractUser):
     bio = models.TextField(verbose_name='О себе',
                            blank=True,
                            max_length=LIMIT_BIO)
+    # Если поля не переопределять, перестанет работать max_length FIXME
+    # Или для этих полей перенести max_length в serilizer?
     first_name = models.CharField(max_length=LIMIT_USERNAME,
                                   blank=True)
     last_name = models.CharField(max_length=LIMIT_USERNAME,
@@ -43,13 +45,13 @@ class User(AbstractUser):
                             default=USER,
                             max_length=LIMIT_ROLE)
 
-
     @property
     def is_admin(self):
-        return self.role == ADMIN #or SUPERUSER or STAFF
+        # Пользователя также можно считать админом, если он superuser или staff
+        return self.role == ADMIN   # or SUPERUSER or STAFF FIXME
 
     @property
-    def is_moderator(self):
+    def is_moderator(self):     # Метод точно нужен? FIXME
         return self.role == MODERATOR
 
     class Meta:
@@ -69,7 +71,7 @@ class CommonCategoryGenre(models.Model):
 
     class Meta:
         abstract = True
-        ordering = ['name']
+        ordering = ('name',)
 
     def __str__(self):
         return self.name[:LEN_STR]
@@ -109,24 +111,19 @@ class Title(models.Model):
         validators=[validate_year],
         db_index=True
     )
-    rating = models.IntegerField(
-        verbose_name='Рейтинг',
-        null=True,
-        default=None
-    )
 
     class Meta:
-        default_related_name = 'title'
-        constraints = [
-            models.UniqueConstraint(
-                fields=['name', 'category'], name='title_unique')
-        ]
+        verbose_name = 'Произведение'
+        verbose_name_plural = 'Произведения'
+        default_related_name = 'titles'
+        ordering = ('name',)
 
     def __str__(self):
-        return self.name
+        return self.name[:LEN_STR]
 
 
-class ReviewCommentModel(models.Model):
+class CommonReviewCommentModel(models.Model):
+    """ Abstract model for storing common data. """
     text = models.TextField(
         verbose_name='Текст',
     )
@@ -146,10 +143,11 @@ class ReviewCommentModel(models.Model):
         ordering = ('-pub_date',)
 
     def __str__(self):
-        return self.text[: LIMIT_SELFTEXT]
+        # Заменил LIMIT_SELFTEXT на LEN_STR, который увеличил с 10 до 20)) TODO
+        return self.text[:LEN_STR]
 
 
-class Review(ReviewCommentModel):
+class Review(CommonReviewCommentModel):
     title = models.ForeignKey(
         Title,
         verbose_name='Произведение',
@@ -164,7 +162,7 @@ class Review(ReviewCommentModel):
         ]
     )
 
-    class Meta:
+    class Meta(CommonReviewCommentModel.Meta):
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
         default_related_name = 'reviews'
@@ -176,7 +174,7 @@ class Review(ReviewCommentModel):
         ]
 
 
-class Comment(ReviewCommentModel):
+class Comment(CommonReviewCommentModel):
     review = models.ForeignKey(
         Review,
         verbose_name='Отзыв',
@@ -184,7 +182,7 @@ class Comment(ReviewCommentModel):
         related_name='comments'
     )
 
-    class Meta:
+    class Meta(CommonReviewCommentModel.Meta):
         verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарии'
         default_related_name = 'comments'

@@ -130,16 +130,20 @@ AUTH_USER_MODEL = 'reviews.User'
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
 CSV_FILE_PATH = os.path.join(BASE_DIR, 'static/data')
+
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
+# Constants
 LIMIT_USERNAME = 150
 LIMIT_EMAIL = 254
 LIMIT_BIO = 300
 LIMIT_ROLE = 50
 LIMIT_NAME = 256
 LIMIT_SLUG = 50
-LEN_STR = 10
+LEN_STR = 20
 MIN_VALUE = 1
 MAX_VALUE = 10
-LIMIT_SELFTEXT = 30
-DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
-RESERVED_USERNAME = 'me'
-VALID_USERNAME = r'^[-a-zA-Z0-9_]+$'
+# LIMIT_SELFTEXT = 30 TODO Удалить
+
+RESERVED_USERNAMES = ('me',)
+VALID_USERNAME = r'^[-a-zA-Z0-9_]+$'    # Вроде строковые константы не надо выносить?  TODO

@@ -11,16 +11,19 @@ from reviews.validators import validate_username
 class UsersSerializer(serializers.ModelSerializer):
     username = serializers.CharField(
         max_length=LIMIT_USERNAME,
+        # FIXME валидаторы можно не прописывать, они указаны на уровне
+        # модели и сработают: как уникальность, так и validate_username
         validators=[
             UniqueValidator(queryset=User.objects.all()),
             validate_username
         ],
+        # FIXME required=True дефолтное поведение
         required=True,
     )
     email = serializers.EmailField(
         max_length=LIMIT_EMAIL,
-        validators=[
-            UniqueValidator(queryset=User.objects.all())
+        validators=[        
+            UniqueValidator(queryset=User.objects.all())    # FIXME
         ]
     )
 
@@ -38,9 +41,13 @@ class NotAdminSerializer(serializers.ModelSerializer):
 
 
 class GetTokenSerializer(serializers.Serializer):
+    # FIXME Нужно ограничение длины, а также валидация
     username = serializers.CharField(
+        # FIXME required=True - дефолт
         required=True)
+    # FIXME Нужно ограничение длины
     confirmation_code = serializers.CharField(
+        # FIXME required=True - дефолт
         required=True)
 
 
@@ -49,6 +56,7 @@ class SignUpSerializer(serializers.Serializer):
         required=True,
         max_length=LIMIT_EMAIL,)
     username = serializers.CharField(
+        # FIXME required=True - дефолт
         required=True,
         validators=[validate_username],
         max_length=LIMIT_USERNAME)
@@ -84,6 +92,7 @@ class TitleSerializer(serializers.ModelSerializer):
 
 
 class ReadOnlyTitleSerializer(serializers.ModelSerializer):
+    # FIXME неверная конструкция. не выводится rating
     rating = serializers.IntegerField(
         source='reviews__score__avg', read_only=True
     )
@@ -100,6 +109,8 @@ class ReadOnlyTitleSerializer(serializers.ModelSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
+    # FIXME По ТЗ нет необходимости выводить slug,
+    # а read_only можно прописать в мете
     author = serializers.SlugRelatedField(
         slug_field='username',
         read_only=True
@@ -110,6 +121,8 @@ class ReviewSerializer(serializers.ModelSerializer):
             user = self.context['request'].user
             title_id = self.context['view'].kwargs.get('title_id')
             title = get_object_or_404(Title, pk=title_id)
+            # TODO Тут вроде не избавились от вложенности
+            # остались два условия, Not не использовано
             if Review.objects.filter(author=user, title=title).exists():
                 raise ValidationError('Вы не можете добавить более'
                                       'одного отзыва на произведение')
@@ -124,6 +137,8 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    # FIXME По ТЗ нет необходимости выводить slug
+    # а read_only можно прописать в мете
     author = serializers.SlugRelatedField(
         slug_field='username',
         read_only=True
