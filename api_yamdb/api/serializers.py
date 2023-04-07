@@ -2,6 +2,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404
 from rest_framework.validators import UniqueValidator
+from django.db.models import Avg
 
 from reviews.models import (LIMIT_EMAIL, LIMIT_USERNAME, Category, Comment,
                             Genre, Review, Title, User)
@@ -105,15 +106,8 @@ class ReadOnlyTitleSerializer(serializers.ModelSerializer):
             'id', 'name', 'description', 'category', 'genre', 'year', 'rating']
 
     def get_rating(self, obj):
-        """ Считаем средний rating из review. """
-        titles = Review.objects.filter(title=obj.id)
-        rating = 0
-        for title in titles:
-            rating += title.score
-        if len(titles):
-            return rating / len(titles)
-        else:
-            return None
+        rating = obj.reviews.aggregate(Avg('score')).get('score__avg')
+        return rating if not rating else round(rating, 0)
 
 
 class ReviewSerializer(serializers.ModelSerializer):
