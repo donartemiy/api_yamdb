@@ -9,9 +9,6 @@ from reviews.validators import validate_username
 
 
 class UsersSerializer(serializers.ModelSerializer):
-        # FIXME валидаторы можно не прописывать, они указаны на уровне
-        # модели и сработают: как уникальность, так и validate_username
-        # FIXME required=True дефолтное поведение
 
     class Meta:
         fields = ('username', 'email', 'first_name',
@@ -20,19 +17,14 @@ class UsersSerializer(serializers.ModelSerializer):
 
 
 class GetTokenSerializer(serializers.Serializer):
-    # FIXME Нужно ограничение длины, а также валидация
     username = serializers.CharField(
         max_length=LIMIT_USERNAME, validators=[validate_username],)
-        # FIXME required=True - дефолт
-    # FIXME Нужно ограничение длины   КАКОЕ???????????????????????????????????
     confirmation_code = serializers.CharField()
-        # FIXME required=True - дефолт
 
 
 class SignUpSerializer(serializers.Serializer):
     email = serializers.EmailField(max_length=LIMIT_EMAIL,)
     username = serializers.CharField(
-        # FIXME required=True - дефолт
         validators=[validate_username], max_length=LIMIT_USERNAME)
 
 
