@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404
-from rest_framework.validators import UniqueValidator
 from django.db.models import Avg
 
 from reviews.models import (LIMIT_EMAIL, LIMIT_USERNAME, Category, Comment,
@@ -10,23 +9,9 @@ from reviews.validators import validate_username
 
 
 class UsersSerializer(serializers.ModelSerializer):
-    username = serializers.CharField(
-        max_length=LIMIT_USERNAME,
         # FIXME валидаторы можно не прописывать, они указаны на уровне
         # модели и сработают: как уникальность, так и validate_username
-        validators=[
-            UniqueValidator(queryset=User.objects.all()),
-            validate_username
-        ],
         # FIXME required=True дефолтное поведение
-        required=True,
-    )
-    email = serializers.EmailField(
-        max_length=LIMIT_EMAIL,
-        validators=[        
-            UniqueValidator(queryset=User.objects.all())    # FIXME
-        ]
-    )
 
     class Meta:
         fields = ('username', 'email', 'first_name',
@@ -34,33 +19,21 @@ class UsersSerializer(serializers.ModelSerializer):
         model = User
 
 
-class NotAdminSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ('username', 'email', 'first_name',
-                  'last_name', 'bio')
-
-
 class GetTokenSerializer(serializers.Serializer):
     # FIXME Нужно ограничение длины, а также валидация
     username = serializers.CharField(
+        max_length=LIMIT_USERNAME, validators=[validate_username],)
         # FIXME required=True - дефолт
-        required=True)
-    # FIXME Нужно ограничение длины
-    confirmation_code = serializers.CharField(
+    # FIXME Нужно ограничение длины   КАКОЕ???????????????????????????????????
+    confirmation_code = serializers.CharField()
         # FIXME required=True - дефолт
-        required=True)
 
 
 class SignUpSerializer(serializers.Serializer):
-    email = serializers.EmailField(
-        required=True,
-        max_length=LIMIT_EMAIL,)
+    email = serializers.EmailField(max_length=LIMIT_EMAIL,)
     username = serializers.CharField(
         # FIXME required=True - дефолт
-        required=True,
-        validators=[validate_username],
-        max_length=LIMIT_USERNAME)
+        validators=[validate_username], max_length=LIMIT_USERNAME)
 
 
 class CategorySerializer(serializers.ModelSerializer):
