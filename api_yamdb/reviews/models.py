@@ -14,8 +14,6 @@ ADMIN = 'admin'
 USER_RU = 'юзер'
 MODERATOR_RU = 'модератор'
 ADMIN_RU = 'админ'
-# SUPERUSER = 'superuser' TODO
-# STAFF = 'staff' TODO
 ROLES = (
     (USER, USER_RU),
     (MODERATOR, MODERATOR_RU),
@@ -34,12 +32,6 @@ class User(AbstractUser):
     bio = models.TextField(verbose_name='О себе',
                            blank=True,
                            max_length=LIMIT_BIO)
-    # Если поля не переопределять, перестанет работать max_length FIXME
-    # Или для этих полей перенести max_length в serilizer?
-    first_name = models.CharField(max_length=LIMIT_USERNAME,
-                                  blank=True)
-    last_name = models.CharField(max_length=LIMIT_USERNAME,
-                                 blank=True)
     role = models.CharField(verbose_name='Уровень доступа',
                             choices=ROLES,
                             default=USER,
@@ -47,11 +39,10 @@ class User(AbstractUser):
 
     @property
     def is_admin(self):
-        # Пользователя также можно считать админом, если он superuser или staff
-        return self.role == ADMIN   # or SUPERUSER or STAFF FIXME
+        return self.role == ADMIN or self.is_superuser or self.is_staff
 
     @property
-    def is_moderator(self):     # Метод точно нужен? FIXME
+    def is_moderator(self):
         return self.role == MODERATOR
 
     class Meta:

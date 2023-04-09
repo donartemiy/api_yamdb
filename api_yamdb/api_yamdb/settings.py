@@ -143,7 +143,5 @@ LIMIT_SLUG = 50
 LEN_STR = 20
 MIN_VALUE = 1
 MAX_VALUE = 10
-# LIMIT_SELFTEXT = 30 TODO Удалить
-
 RESERVED_USERNAMES = ('me',)
-VALID_USERNAME = r'^[-a-zA-Z0-9_]+$'    # Вроде строковые константы не надо выносить?  TODO
+VALID_USERNAME = r'^[\w.@+-]+\Z'

@@ -26,7 +26,5 @@ auth = [
 
 urlpatterns = [
     path('v1/', include(router.urls)),
-    # TODO Урлы с одинаковым префиксом auth (строчки 24-25) выносим в
-    # отдельный список и подключаем одним инклудом
     path('v1/auth/', include(auth))
 ]
