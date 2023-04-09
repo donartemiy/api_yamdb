@@ -134,7 +134,6 @@ class CommonReviewCommentModel(models.Model):
         ordering = ('-pub_date',)
 
     def __str__(self):
-        # Заменил LIMIT_SELFTEXT на LEN_STR, который увеличил с 10 до 20)) TODO
         return self.text[:LEN_STR]
 
 

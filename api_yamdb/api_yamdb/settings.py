@@ -133,6 +133,9 @@ CSV_FILE_PATH = os.path.join(BASE_DIR, 'static/data')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
+RESERVED_USERNAMES = ('me',)
+VALID_USERNAME = r'^[\w.@+-]+\Z'
+
 # Constants
 LIMIT_USERNAME = 150
 LIMIT_EMAIL = 254
@@ -143,5 +146,3 @@ LIMIT_SLUG = 50
 LEN_STR = 20
 MIN_VALUE = 1
 MAX_VALUE = 10
-RESERVED_USERNAMES = ('me',)
-VALID_USERNAME = r'^[\w.@+-]+\Z'
