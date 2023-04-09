@@ -17,7 +17,7 @@ from api.serializers import (CategorySerializer, CommentSerializer,
                              GenreSerializer, GetTokenSerializer,
                              ReviewSerializer, SignUpSerializer,
                              TitleSerializer, UsersSerializer,
-                             ReadOnlyTitleSerializer)
+                             ReadOnlyTitleSerializer, ValidationError)
 from reviews.models import Category, Genre, Review, Title, User
 
 
@@ -55,14 +55,7 @@ def api_get_token(request):
         return Response(
             {'token': str(AccessToken.for_user(user))},
             status=status.HTTP_201_CREATED)
-    # FIXME правильнее сделать raise ValidationError, который сам
-    # конвертируется в 400 код ответа
-    # Это нужно для лучше понимания кодом программистом, что тут у нас
-    # ошибочная ситуация
-    # raise ValidationError('Some message')
-    return Response(
-        'confirmation_code: Неверный код подтверждения!',
-        status=status.HTTP_400_BAD_REQUEST)
+    raise ValidationError('Invalid value')
 
 
 @api_view(['POST'])
