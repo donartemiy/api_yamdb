@@ -4,7 +4,7 @@ from django.conf import settings
 from django.shortcuts import get_object_or_404
 from rest_framework import (filters, permissions,
                             status, viewsets, mixins)
-from rest_framework.decorators import action, api_view
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 from django.db.models import Avg
@@ -45,6 +45,7 @@ class UsersViewSet(viewsets.ModelViewSet):
 
 
 @api_view(['POST'])
+@permission_classes([permissions.AllowAny])
 def api_get_token(request):
     serializer = GetTokenSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
@@ -59,6 +60,7 @@ def api_get_token(request):
 
 
 @api_view(['POST'])
+@permission_classes([permissions.AllowAny])
 def api_signup(request):
     serializer = SignUpSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
