@@ -75,10 +75,10 @@ def api_signup(request):
         raise ValidationError(
             'Такой username или e-mail уже используется.'
         )
-    user, _ = User.objects.get_or_create(username=username, email=email)
     code = default_token_generator.make_token(user)
+    subject = 'Please confirm registration!'
     message = f'Здравствуйте, {username}! Ваш код подтверждения: {code}'
-    send_mail(_, message, settings.SUPPORT_MAIL, [email])
+    send_mail(subject, message, settings.SUPPORT_MAIL, [email])
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
