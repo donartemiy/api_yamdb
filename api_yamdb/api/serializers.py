@@ -67,8 +67,8 @@ class ReadOnlyTitleSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'name', 'description', 'category', 'genre', 'year', 'rating'
         )
-        read_only_fields = [
-            'id', 'name', 'description', 'category', 'genre', 'year', 'rating']
+        read_only_fields = (
+            'id', 'name', 'description', 'category', 'genre', 'year', 'rating')
 
     def get_rating(self, obj):
         rating = obj.reviews.aggregate(Avg('score')).get('score__avg')
@@ -81,6 +81,10 @@ class ReviewSerializer(serializers.ModelSerializer):
         read_only=True
     )
 
+    class Meta:
+        model = Review
+        exclude = ('title',)
+
     def validate(self, data):
         if self.context['request'].method == 'POST':
             user = self.context['request'].user
@@ -91,13 +95,6 @@ class ReviewSerializer(serializers.ModelSerializer):
                                       'одного отзыва на произведение')
         return data
 
-    class Meta:
-        model = Review
-        exclude = ['title']
-        read_only_fields = (
-            'id', 'author', 'pub_date',
-        )
-
 
 class CommentSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
@@ -107,7 +104,4 @@ class CommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        exclude = ['review']
-        read_only_fields = (
-            'id', 'author', 'pub_date',
-        )
+        exclude = ('review',)
