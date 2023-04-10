@@ -1,11 +1,8 @@
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
-from api_yamdb.settings import (LEN_STR, LIMIT_BIO,
-                                LIMIT_EMAIL, LIMIT_NAME, LIMIT_ROLE,
-                                LIMIT_SLUG, LIMIT_USERNAME,
-                                MAX_VALUE, MIN_VALUE)
 from .validators import validate_username, validate_year
 
 USER = 'user'
@@ -24,18 +21,18 @@ ROLES = (
 class User(AbstractUser):
     username = models.CharField(verbose_name='Пользователь',
                                 validators=(validate_username,),
-                                max_length=LIMIT_USERNAME,
+                                max_length=settings.LIMIT_USERNAME,
                                 unique=True)
     email = models.EmailField(verbose_name='E-Mail',
                               unique=True,
-                              max_length=LIMIT_EMAIL)
+                              max_length=settings.LIMIT_EMAIL)
     bio = models.TextField(verbose_name='О себе',
                            blank=True,
-                           max_length=LIMIT_BIO)
+                           max_length=settings.LIMIT_BIO)
     role = models.CharField(verbose_name='Уровень доступа',
                             choices=ROLES,
                             default=USER,
-                            max_length=LIMIT_ROLE)
+                            max_length=settings.LIMIT_ROLE)
 
     @property
     def is_admin(self):
@@ -55,9 +52,9 @@ class User(AbstractUser):
 
 class CommonCategoryGenre(models.Model):
     """ Abstract model for storing common data. """
-    name = models.CharField(max_length=LIMIT_NAME)
+    name = models.CharField(max_length=settings.LIMIT_NAME)
     slug = models.SlugField(
-        max_length=LIMIT_SLUG,
+        max_length=settings.LIMIT_SLUG,
         unique=True)
 
     class Meta:
@@ -65,7 +62,7 @@ class CommonCategoryGenre(models.Model):
         ordering = ('name',)
 
     def __str__(self):
-        return self.name[:LEN_STR]
+        return self.name[:settings.LEN_STR]
 
 
 class Category(CommonCategoryGenre):
@@ -82,7 +79,7 @@ class Genre(CommonCategoryGenre):
 
 class Title(models.Model):
     name = models.CharField(
-        max_length=LIMIT_NAME, verbose_name='Название')
+        max_length=settings.LIMIT_NAME, verbose_name='Название')
     description = models.TextField(blank=True, verbose_name='Описание')
     category = models.ForeignKey(
         Category,
@@ -110,7 +107,7 @@ class Title(models.Model):
         ordering = ('name',)
 
     def __str__(self):
-        return self.name[:LEN_STR]
+        return self.name[:settings.LEN_STR]
 
 
 class CommonReviewCommentModel(models.Model):
@@ -134,7 +131,7 @@ class CommonReviewCommentModel(models.Model):
         ordering = ('-pub_date',)
 
     def __str__(self):
-        return self.text[:LEN_STR]
+        return self.text[:settings.LEN_STR]
 
 
 class Review(CommonReviewCommentModel):
@@ -147,8 +144,10 @@ class Review(CommonReviewCommentModel):
     score = models.PositiveSmallIntegerField(
         verbose_name='Рейтинг',
         validators=[
-            MinValueValidator(MIN_VALUE, 'Допустимы значения от 1 до 10'),
-            MaxValueValidator(MAX_VALUE, 'Допустимы значения от 1 до 10')
+            MinValueValidator(settings.MIN_VALUE,
+                              'Допустимы значения от 1 до 10'),
+            MaxValueValidator(settings.MAX_VALUE,
+                              'Допустимы значения от 1 до 10')
         ]
     )
 

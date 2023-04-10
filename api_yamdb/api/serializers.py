@@ -1,9 +1,10 @@
+from django.conf import settings
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404
 from django.db.models import Avg
 
-from reviews.models import (LIMIT_EMAIL, LIMIT_USERNAME, Category, Comment,
+from reviews.models import (Category, Comment,
                             Genre, Review, Title, User)
 from reviews.validators import validate_username
 
@@ -18,14 +19,14 @@ class UsersSerializer(serializers.ModelSerializer):
 
 class GetTokenSerializer(serializers.Serializer):
     username = serializers.CharField(
-        max_length=LIMIT_USERNAME, validators=[validate_username],)
+        max_length=settings.LIMIT_USERNAME, validators=[validate_username],)
     confirmation_code = serializers.CharField()
 
 
 class SignUpSerializer(serializers.Serializer):
-    email = serializers.EmailField(max_length=LIMIT_EMAIL,)
+    email = serializers.EmailField(max_length=settings.LIMIT_EMAIL,)
     username = serializers.CharField(
-        validators=[validate_username], max_length=LIMIT_USERNAME)
+        validators=[validate_username], max_length=settings.LIMIT_USERNAME)
 
 
 class CategorySerializer(serializers.ModelSerializer):
