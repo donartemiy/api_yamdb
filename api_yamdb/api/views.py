@@ -7,7 +7,7 @@ from rest_framework import (filters, permissions,
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
-from django.db.models import Avg
+from django.db import models, IntegrityError
 from django_filters.rest_framework import DjangoFilterBackend
 
 from api.filters import TitleFilter
@@ -70,10 +70,10 @@ def api_signup(request):
         user, _ = User.objects.get_or_create(
             **serializer.validated_data
         )
-    except Exception:
-        return Response(
-            'Такой username или e-mail уже используется.',
-            status=status.HTTP_400_BAD_REQUEST)
+    except IntegrityError:
+        raise ValidationError(
+            'Такой username или e-mail уже используется.'
+        )
     user, _ = User.objects.get_or_create(username=username, email=email)
     code = default_token_generator.make_token(user)
     message = f'Здравствуйте, {username}! Ваш код подтверждения: {code}'
@@ -83,7 +83,7 @@ def api_signup(request):
 
 class TitleViewSet(viewsets.ModelViewSet):
     serializer_class = TitleSerializer
-    queryset = Title.objects.annotate(rating=Avg("reviews__score"))
+    queryset = Title.objects.annotate(rating=models.Avg("reviews__score"))
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TitleFilter
     permission_classes = (IsAdminReadOnly,)
