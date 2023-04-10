@@ -81,9 +81,7 @@ def api_signup(request):
 
 class TitleViewSet(viewsets.ModelViewSet):
     serializer_class = TitleSerializer
-    queryset = Title.objects.all().annotate(
-        Avg('reviews__score')
-    ).order_by('name')
+    queryset = Title.objects.annotate(rating=Avg("reviews__score"))
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TitleFilter
     permission_classes = (IsAdminReadOnly,)
