@@ -17,6 +17,14 @@ class UsersSerializer(serializers.ModelSerializer):
         model = User
 
 
+class UserEditSerializer(UsersSerializer):
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'first_name',
+                  'last_name', 'bio', 'role')
+        read_only_fields = ('role',)
+
+
 class GetTokenSerializer(serializers.Serializer):
     username = serializers.CharField(
         max_length=settings.LIMIT_USERNAME, validators=[validate_username],)

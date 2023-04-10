@@ -17,7 +17,8 @@ from api.serializers import (CategorySerializer, CommentSerializer,
                              GenreSerializer, GetTokenSerializer,
                              ReviewSerializer, SignUpSerializer,
                              TitleSerializer, UsersSerializer,
-                             ReadOnlyTitleSerializer, ValidationError)
+                             ReadOnlyTitleSerializer, ValidationError,
+                             UserEditSerializer)
 from reviews.models import Category, Genre, Review, Title, User
 
 
@@ -30,18 +31,18 @@ class UsersViewSet(viewsets.ModelViewSet):
     search_fields = ('username', )
     http_method_names = ('patch', 'post', 'get', 'delete')
 
-    @action(methods=['get', 'patch'], detail=False,
-            permission_classes=(permissions.IsAuthenticated,), url_path='me')
+    @action(methods=['get', 'patch'],
+            permission_classes=[permissions.IsAuthenticated], detail=False,
+            serializer_class=UserEditSerializer, url_path='me')
     def get_current_user_info(self, request):
-        serializer = UsersSerializer(request.user)
+        user = request.user
         if request.method == 'PATCH':
-            user = request.user
             serializer = self.get_serializer(
                 user, data=request.data, partial=True)
             serializer.is_valid(raise_exception=True)
-            serializer.save(role=request.user.role)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.data)
+            serializer.save()
+        serializer = self.get_serializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])
@@ -56,7 +57,7 @@ def api_get_token(request):
         return Response(
             {'token': str(AccessToken.for_user(user))},
             status=status.HTTP_201_CREATED)
-    raise ValidationError('Invalid value')
+    raise ValidationError('Неверный код подтвержения!')
 
 
 @api_view(['POST'])
