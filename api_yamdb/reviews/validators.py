@@ -12,7 +12,7 @@ def validate_year(year):
 def validate_username(username):
     if username.lower() in settings.RESERVED_USERNAMES:
         raise ValidationError(f'Имя пользователя не может быть {username}.')
-    if not re.search(settings.VALID_USERNAME, username):
-        wrong_symbols = re.findall(r'\W', username)
+    wrong_symbols = re.findall(r'\W', username)
+    if wrong_symbols:
         raise ValidationError(
             f'Обнаружены недопустимые символы: {wrong_symbols}!')
