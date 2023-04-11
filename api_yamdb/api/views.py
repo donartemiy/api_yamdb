@@ -4,10 +4,10 @@ from django.conf import settings
 from django.shortcuts import get_object_or_404
 from rest_framework import (filters, permissions,
                             status, viewsets, mixins)
-from rest_framework.decorators import action, api_view
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
-from django.db.models import Avg
+from django.db import models, IntegrityError
 from django_filters.rest_framework import DjangoFilterBackend
 
 from api.filters import TitleFilter
@@ -17,7 +17,8 @@ from api.serializers import (CategorySerializer, CommentSerializer,
                              GenreSerializer, GetTokenSerializer,
                              ReviewSerializer, SignUpSerializer,
                              TitleSerializer, UsersSerializer,
-                             ReadOnlyTitleSerializer, ValidationError)
+                             ReadOnlyTitleSerializer, ValidationError,
+                             UserEditSerializer)
 from reviews.models import Category, Genre, Review, Title, User
 
 
@@ -30,21 +31,22 @@ class UsersViewSet(viewsets.ModelViewSet):
     search_fields = ('username', )
     http_method_names = ('patch', 'post', 'get', 'delete')
 
-    @action(methods=['get', 'patch'], detail=False,
-            permission_classes=(permissions.IsAuthenticated,), url_path='me')
+    @action(methods=['get', 'patch'],
+            permission_classes=[permissions.IsAuthenticated], detail=False,
+            serializer_class=UserEditSerializer, url_path='me')
     def get_current_user_info(self, request):
-        serializer = UsersSerializer(request.user)
+        user = request.user
         if request.method == 'PATCH':
-            user = request.user
             serializer = self.get_serializer(
                 user, data=request.data, partial=True)
             serializer.is_valid(raise_exception=True)
-            serializer.save(role=request.user.role)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.data)
+            serializer.save()
+        serializer = self.get_serializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])
+@permission_classes([permissions.AllowAny])
 def api_get_token(request):
     serializer = GetTokenSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
@@ -55,10 +57,11 @@ def api_get_token(request):
         return Response(
             {'token': str(AccessToken.for_user(user))},
             status=status.HTTP_201_CREATED)
-    raise ValidationError('Invalid value')
+    raise ValidationError('Неверный код подтвержения!')
 
 
 @api_view(['POST'])
+@permission_classes([permissions.AllowAny])
 def api_signup(request):
     serializer = SignUpSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
@@ -68,22 +71,20 @@ def api_signup(request):
         user, _ = User.objects.get_or_create(
             **serializer.validated_data
         )
-    except Exception:
-        return Response(
-            'Такой username или e-mail уже используется.',
-            status=status.HTTP_400_BAD_REQUEST)
-    user, _ = User.objects.get_or_create(username=username, email=email)
+    except IntegrityError:
+        raise ValidationError(
+            'Такой username или e-mail уже используется.'
+        )
     code = default_token_generator.make_token(user)
+    subject = 'Please confirm registration!'
     message = f'Здравствуйте, {username}! Ваш код подтверждения: {code}'
-    send_mail(_, message, settings.SUPPORT_MAIL, [email])
+    send_mail(subject, message, settings.SUPPORT_MAIL, [email])
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class TitleViewSet(viewsets.ModelViewSet):
     serializer_class = TitleSerializer
-    queryset = Title.objects.all().annotate(
-        Avg('reviews__score')
-    ).order_by('name')
+    queryset = Title.objects.annotate(rating=models.Avg("reviews__score"))
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TitleFilter
     permission_classes = (IsAdminReadOnly,)
