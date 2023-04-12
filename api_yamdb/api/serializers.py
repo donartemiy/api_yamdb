@@ -18,10 +18,7 @@ class UsersSerializer(serializers.ModelSerializer):
 
 
 class UserEditSerializer(UsersSerializer):
-    class Meta:
-        model = User
-        fields = ('username', 'email', 'first_name',
-                  'last_name', 'bio', 'role')
+    class Meta(UsersSerializer.Meta):
         read_only_fields = ('role',)
 
 
