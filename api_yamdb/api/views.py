@@ -36,13 +36,15 @@ class UsersViewSet(viewsets.ModelViewSet):
             serializer_class=UserEditSerializer, url_path='me')
     def get_current_user_info(self, request):
         user = request.user
-        if request.method == 'PATCH':
-            serializer = self.get_serializer(
-                user, data=request.data, partial=True)
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-        serializer = self.get_serializer(user)
+        if not request.method == 'PATCH':
+            serializer = self.get_serializer(user)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        serializer = self.get_serializer(
+            user, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 
 @api_view(['POST'])

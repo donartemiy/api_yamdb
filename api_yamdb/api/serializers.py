@@ -18,10 +18,7 @@ class UsersSerializer(serializers.ModelSerializer):
 
 
 class UserEditSerializer(UsersSerializer):
-    class Meta:
-        model = User
-        fields = ('username', 'email', 'first_name',
-                  'last_name', 'bio', 'role')
+    class Meta(UsersSerializer.Meta):
         read_only_fields = ('role',)
 
 
@@ -69,7 +66,7 @@ class TitleSerializer(serializers.ModelSerializer):
 class ReadOnlyTitleSerializer(serializers.ModelSerializer):
     genre = GenreSerializer(many=True)
     category = CategorySerializer()
-    rating = IntegerField(read_only=True)
+    rating = IntegerField()
 
     class Meta:
         model = Title
