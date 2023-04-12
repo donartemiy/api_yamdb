@@ -66,7 +66,7 @@ class TitleSerializer(serializers.ModelSerializer):
 class ReadOnlyTitleSerializer(serializers.ModelSerializer):
     genre = GenreSerializer(many=True)
     category = CategorySerializer()
-    rating = IntegerField(read_only=True)
+    rating = IntegerField()
 
     class Meta:
         model = Title
